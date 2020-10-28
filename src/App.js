@@ -1,9 +1,9 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
 import Search from './component/Search';
 import Results from './component/Results';
+import Popup from './component/Popup'
 
 function App() {
   const [state, setState] = useState({
@@ -16,12 +16,12 @@ function App() {
   const search = (e) => {
     if(e.key === "Enter"){
       axios(apiUrl + "&s=" + state.s).then(({ data}) =>{
-        let results = data.Dearch;
+        let results = data.Search;
 
         setState(prevState => {
           return{...prevState, results: results }
         })
-      })
+      });
     }
   }
 
@@ -33,6 +33,25 @@ function App() {
     });
 
   }
+  const openPopup = id => {
+    axios(apiUrl + "&i=" + id).then(({data}) =>{
+      let result = data;
+
+      console.log(result);
+
+      setState(prevState => {
+        return{...prevState, selected: result}
+      });
+
+    });
+  }
+  const closePopup = () => {
+    setState(prevState => {
+      return{...prevState, selected: {}}
+    });
+  }
+
+
   return (
     <div className="App">
      <header>
@@ -40,7 +59,9 @@ function App() {
       </header>
       <main>
         <Search handleInput={handleInput} search={search}/>
-        <Results results={state.results}/>
+        <Results results={state.results} openPopup={openPopup}/>
+
+        {(typeof state.selected.Title != "undefined") ? <Popup selected={state.selected} closePopup ={closePopup}/> : false}
       </main>
     </div>
   );
